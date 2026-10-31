@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chatbot WhatsApp — Chez Ella Services</title>
+<meta name="description" content="Un chatbot WhatsApp qui répond à vos clients 24 h / 24, montre vos articles, prend les commandes et suit les paiements. À partir de 5 000 FCFA par semaine.">
+<meta property="og:title" content="Votre boutique répond sur WhatsApp, même quand vous dormez">
+<meta property="og:description" content="Chatbot WhatsApp pour commerçants, à partir de 5 000 FCFA par semaine. Installation à 15 000 FCFA pour les 10 premiers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Une colonne centrée ; le haut de page associe le message et une conversation WhatsApp d'exemple, qui passent l'une sous l'autre sur téléphone */
+:root {
+  --bg: #0F1513;
+  --surface: #17201D;
+  --ink: #E7EEEB;
+  --muted: #9BAAA4;
+  --line: #2A3632;
+  --accent: #5CC2AE;
+  --accent-soft: #173A33;
+  --gold: #E5B45C;
+  --on-gold: #0F1513;
+  --bubble-in: #1F2C28;
+  --bubble-out: #1E5A4C;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 0;
+}
+.page { max-width: 1080px; margin: 0 auto; display: grid; gap: 80px; }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h1 { font-size: clamp(38px, 6.5vw, 66px); line-height: 1.02; font-weight: 800; }
+h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 700; }
+h3 { font-size: 19px; font-weight: 700; }
+p { margin: 0; max-width: 64ch; }
+a { color: var(--accent); }
+.muted { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.eyebrow { font: 500 13px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 24px; }
+.section-head { display: grid; gap: 8px; }
+
+/* Barre du haut */
+nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.brand { display: grid; line-height: 1.1; text-decoration: none; }
+.brand b { font-family: var(--display); font-weight: 800; font-size: 24px; color: var(--accent); letter-spacing: 0.02em; }
+.brand span { font: 500 12px var(--mono); letter-spacing: 0.3em; color: var(--muted); }
+.nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.nav-links a { color: var(--ink); text-decoration: none; font-weight: 500; }
+.nav-links a:hover { color: var(--accent); }
+@media (max-width: 640px) { .nav-links a:not(.btn) { display: none; } }
+
+/* Boutons */
+.btn { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 12px 22px; border-radius: 999px; font-weight: 600; text-decoration: none; }
+.btn-main { background: var(--accent); color: var(--bg); }
+.btn-main:hover { background: #7DD3C0; }
+.btn-ghost { border: 1px solid var(--line); color: var(--ink); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn svg { width: 20px; height: 20px; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* Haut de page */
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 48px; align-items: center; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+.hero-text { display: grid; gap: 22px; }
+.from { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 20px; color: var(--muted); }
+.from b { font-family: var(--display); font-size: clamp(46px, 8vw, 76px); font-weight: 800; color: var(--accent); line-height: 1; }
+.badge { justify-self: start; background: var(--gold); color: var(--on-gold); font-family: var(--display); font-weight: 800; font-size: 16px; padding: 7px 13px; border-radius: 6px; transform: rotate(-2deg); }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Conversation d'exemple */
+.phone { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 14px; max-width: 380px; width: 100%; justify-self: center; }
+.phone-top { display: flex; align-items: center; gap: 10px; padding: 6px 8px 12px; border-bottom: 1px solid var(--line); }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-family: var(--display); font-weight: 800; }
+.phone-top small { display: block; color: var(--accent); font-size: 12px; }
+.chat { display: grid; gap: 8px; padding: 14px 4px 6px; font-size: 14.5px; line-height: 1.45; }
+.msg { max-width: 82%; padding: 8px 12px; border-radius: 12px; }
+.in { justify-self: start; background: var(--bubble-in); border-top-left-radius: 4px; }
+.out { justify-self: end; background: var(--bubble-out); border-top-right-radius: 4px; }
+.msg time { display: block; text-align: right; font-size: 11px; color: var(--muted); margin-top: 2px; }
+.out time { color: #A9D6CA; }
+.photo { justify-self: end; width: 70%; border-radius: 10px; overflow: hidden; background: var(--bubble-out); }
+.photo-img { aspect-ratio: 4 / 3; background:
+  radial-gradient(circle at 50% 38%, #2C2C2C 0 22%, transparent 23%),
+  linear-gradient(160deg, #3B4B46, #24312D); display: grid; place-items: end center; padding-bottom: 10px; }
+.photo-img span { font: 500 11px var(--mono); color: #CFE3DD; letter-spacing: 0.08em; text-transform: uppercase; }
+.photo p { padding: 6px 10px 8px; font-size: 13.5px; }
+.chat-note { text-align: center; font-size: 12px; color: var(--muted); padding-top: 6px; }
+
+/* Étapes */
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: etape; }
+@media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 8px; align-content: start; }
+.step::before { counter-increment: etape; content: counter(etape); font-family: var(--display); font-weight: 800; font-size: 34px; color: var(--accent); line-height: 1; }
+
+/* Fonctions */
+.features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 860px) { .features { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 540px) { .features { grid-template-columns: 1fr; } }
+.feature { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 6px; align-content: start; }
+.feature svg { width: 26px; height: 26px; stroke: var(--accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Formules */
+.plans { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 940px) { .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 540px) { .plans { grid-template-columns: 1fr; } }
+.plan { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 12px; align-content: start; }
+.plan.featured { border: 2px solid var(--accent); padding: 21px; }
+.tag { justify-self: start; font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 8px; border-radius: 4px; }
+.plan.featured .tag { background: var(--accent); color: var(--bg); }
+.price { font-family: var(--display); font-weight: 800; font-size: 36px; line-height: 1; }
+.per { font-size: 14px; color: var(--muted); }
+.month { font-weight: 600; }
+.plan ul { margin: 0; padding: 12px 0 0; list-style: none; border-top: 1px dashed var(--line); display: grid; gap: 8px; font-size: 15px; }
+.plan li { display: flex; gap: 8px; }
+.plan li::before { content: ""; flex: none; width: 8px; height: 8px; margin-top: 8px; border-radius: 50%; background: var(--accent); }
+.plans-note { font-size: 14px; }
+
+/* Installation */
+.install { background: var(--gold); color: var(--on-gold); border-radius: 18px; padding: 32px; display: grid; gap: 14px; }
+.install h2 { font-size: clamp(26px, 4.5vw, 40px); }
+.install ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-weight: 500; }
+.install .btn { justify-self: start; background: var(--bg); color: var(--ink); }
+.install .btn:hover { background: #1E2A26; }
+
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 10px; align-content: start; }
+.box ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+
+.faq { display: grid; gap: 10px; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; }
+summary { cursor: pointer; font-weight: 600; }
+details p { margin-top: 8px; color: var(--muted); }
+
+.final { text-align: center; justify-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 40px 20px; }
+.final .phones { display: flex; gap: 10px 28px; flex-wrap: wrap; justify-content: center; font-size: 20px; font-weight: 600; }
+footer { border-top: 1px solid var(--line); padding-block: 24px 32px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <nav>
+    <a class="brand" href="#"><b>CHEZ ELLA</b><span>SERVICES</span></a>
+    <div class="nav-links">
+      <a href="#fonctions">Fonctions</a>
+      <a href="#formules">Formules</a>
+      <a href="#questions">Questions</a>
+      <a class="btn btn-main" href="https://wa.me/2250710411627?text=Bonjour%2C%20je%20souhaite%20un%20chatbot%20WhatsApp%20pour%20mon%20commerce." target="_blank" rel="noopener">Nous écrire</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-text">
+      <span class="eyebrow">Chatbot WhatsApp pour commerçants</span>
+      <h1>Votre boutique répond sur WhatsApp, même quand vous dormez</h1>
+      <p class="muted" style="font-size: 18px">Un assistant installé sur votre numéro WhatsApp : il répond à vos clients, montre vos articles, prend les commandes et vous prévient dès qu'un paiement arrive.</p>
+      <div class="from">à partir de <b class="num">5 000 FCFA</b> par semaine</div>
+      <span class="badge">PROMO DE LANCEMENT</span>
+      <div class="actions">
+        <a class="btn btn-main" href="https://wa.me/2250710411627?text=Bonjour%2C%20je%20souhaite%20un%20chatbot%20WhatsApp%20pour%20mon%20commerce." target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.4 7.9L3 21l1.2-4.4A9 9 0 1 1 21 12z"/></svg>
+          Demander mon chatbot
+        </a>
+        <a class="btn btn-ghost" href="#formules">Voir les formules</a>
+      </div>
+    </div>
+
+    <figure class="phone" style="margin: 0" aria-label="Exemple de conversation entre une cliente et le chatbot d'une boutique">
+      <div class="phone-top">
+        <div class="avatar" aria-hidden="true">B</div>
+        <div><b>Votre boutique</b><small>en ligne</small></div>
+      </div>
+      <div class="chat">
+        <div class="msg in">Bonsoir, vous avez des jupes noires en M ?<time>22:47</time></div>
+        <div class="msg out">Bonsoir ! Oui, il nous reste la jupe crayon noire en M, à 12 000 FCFA. Je vous envoie la photo.<time>22:47</time></div>
+        <div class="photo"><div class="photo-img"><span>Photo de l'article</span></div><p>Jupe crayon noire - 12 000 FCFA</p></div>
+        <div class="msg in">Je la prends. Livraison à Cocody demain ?<time>22:49</time></div>
+        <div class="msg out">Avec plaisir. Livraison à Cocody : 2 000 FCFA, total 14 000 FCFA. Envoyez le paiement par Wave puis la capture ici.<time>22:49</time></div>
+      </div>
+      <figcaption class="chat-note">Exemple de conversation</figcaption>
+    </figure>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Comment ça marche</span>
+      <h2>Votre chatbot prêt en trois étapes</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><h3>Vous nous envoyez votre catalogue</h3><p class="muted">Vos articles, prix, tailles et photos, vos frais de livraison et vos numéros de paiement.</p></div>
+      <div class="step"><h3>Nous installons tout</h3><p class="muted">Nous configurons le chatbot sur votre numéro WhatsApp et le testons avec vous.</p></div>
+      <div class="step"><h3>Il vend pour vous</h3><p class="muted">Le chatbot répond à vos clients jour et nuit. Vous recevez les commandes et les paiements.</p></div>
+    </div>
+  </section>
+
+  <section id="fonctions">
+    <div class="section-head">
+      <span class="eyebrow">Fonctions</span>
+      <h2>Ce que fait votre chatbot</h2>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <h3>Répond 24 h / 24</h3>
+        <p class="muted">Prix, tailles, horaires, livraison : vos clients ont une réponse tout de suite, même la nuit et le dimanche.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg>
+        <h3>Montre vos articles</h3>
+        <p class="muted">Il cherche dans votre catalogue et envoie la photo avec le prix.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l1 5H5z"/><path d="M5 8v12h14V8"/><path d="M9 13h6"/></svg>
+        <h3>Prend les commandes</h3>
+        <p class="muted">Article, taille, nom, adresse, jour de livraison : il note tout et envoie un récapitulatif.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h3"/></svg>
+        <h3>Suit les paiements</h3>
+        <p class="muted">Il demande la capture du paiement (Orange Money, Wave ou un autre moyen de paiement) et vous l'envoie avec toutes les infos du client.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 1 6 6c0 5 2 6 2 6H4s2-1 2-6a6 6 0 0 1 6-6z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>
+        <h3>Vous prévient</h3>
+        <p class="muted">Nouvelle commande ou capture reçue : vous recevez un message, rien ne vous échappe.</p>
+      </div>
+      <div class="feature">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="4" y="11" width="16" height="10" rx="2"/></svg>
+        <h3>Vous laisse la main</h3>
+        <p class="muted">Une situation délicate ? Il vous passe la conversation, et vous répondez quand vous voulez.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="formules">
+    <div class="section-head">
+      <span class="eyebrow">Formules</span>
+      <h2>Choisissez votre formule</h2>
+      <p class="muted">Toutes les formules comprennent toutes les fonctions. Elles se distinguent par le nombre de conversations et d'articles. Paiement d'avance, à la semaine ou au mois, sans engagement.</p>
+    </div>
+    <div class="plans">
+      <article class="plan">
+        <span class="tag">Petit commerce</span>
+        <h3>BASIC</h3>
+        <div><div class="price num">5 000 F</div><div class="per">par semaine</div></div>
+        <div class="month num">ou 20 000 F / mois</div>
+        <ul>
+          <li>100 conversations par mois</li>
+          <li>Catalogue de 20 articles</li>
+          <li>Toutes les fonctions incluses</li>
+          <li>1 mise à jour du catalogue par mois</li>
+        </ul>
+      </article>
+      <article class="plan">
+        <span class="tag">Commerce actif</span>
+        <h3>STANDARD</h3>
+        <div><div class="price num">15 000 F</div><div class="per">par semaine</div></div>
+        <div class="month num">ou 40 000 F / mois</div>
+        <ul>
+          <li>200 conversations par mois</li>
+          <li>Catalogue de 50 articles</li>
+          <li>Toutes les fonctions incluses</li>
+          <li>1 mise à jour du catalogue par mois</li>
+        </ul>
+      </article>
+      <article class="plan featured">
+        <span class="tag">Le plus choisi</span>
+        <h3>PRO</h3>
+        <div><div class="price num">20 000 F</div><div class="per">par semaine</div></div>
+        <div class="month num">ou 80 000 F / mois</div>
+        <ul>
+          <li>500 conversations par mois</li>
+          <li>Catalogue de 150 articles</li>
+          <li>Toutes les fonctions incluses</li>
+          <li>1 mise à jour du catalogue par mois</li>
+        </ul>
+      </article>
+      <article class="plan">
+        <span class="tag">Gros volume</span>
+        <h3>PREMIUM</h3>
+        <div><div class="price num">35 000 F</div><div class="per">par semaine</div></div>
+        <div class="month num">ou 140 000 F / mois</div>
+        <ul>
+          <li>Plus de 500 conversations par mois</li>
+          <li>Plus de 150 articles au catalogue</li>
+          <li>Tout le PRO</li>
+          <li>1 mise à jour du catalogue par mois</li>
+        </ul>
+      </article>
+    </div>
+    <p class="plans-note muted">Une « conversation » regroupe tous les messages d'un même client sur 24 h. Au-delà de votre formule, le chatbot continue de répondre : 15 000 F par tranche de 100 conversations, ou passage à la formule supérieure.</p>
+  </section>
+
+  <section class="install">
+    <h2>Installation à 15 000 FCFA pour les 10 premiers commerçants</h2>
+    <p>Un paiement unique, puis votre chatbot est prêt à répondre. L'installation comprend :</p>
+    <ul>
+      <li>la mise en place sur votre numéro WhatsApp</li>
+      <li>la saisie de votre catalogue (dans la limite de votre formule)</li>
+      <li>vos horaires, frais de livraison et numéros de paiement</li>
+      <li>des tests complets avant le lancement</li>
+      <li>une prise en main de 30 minutes</li>
+    </ul>
+    <a class="btn" href="https://wa.me/2250710411627?text=Bonjour%2C%20je%20veux%20profiter%20de%20l%27installation%20%C3%A0%2015%20000%20FCFA." target="_blank" rel="noopener">Réserver ma place</a>
+  </section>
+
+  <section class="two">
+    <div class="box">
+      <h3>Ce que vous fournissez</h3>
+      <ul>
+        <li>Votre numéro WhatsApp ou une carte SIM neuve</li>
+        <li>La liste de vos articles : nom, prix, tailles, couleurs, stock</li>
+        <li>Une photo par article</li>
+        <li>Vos numéros Orange Money, Wave ou autre moyen de paiement</li>
+        <li>Vos frais de livraison par commune</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Bon à savoir</h3>
+      <ul>
+        <li>Paiement d'avance, à la semaine ou au mois</li>
+        <li>Sans engagement : vous arrêtez quand vous voulez</li>
+        <li>Changement de formule possible à chaque renouvellement</li>
+        <li>Mise à jour du catalogue en plus : 5 000 F</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="faq" id="questions">
+    <div class="section-head">
+      <span class="eyebrow">Questions</span>
+      <h2>Questions fréquentes</h2>
+    </div>
+    <details><summary>Je peux répondre moi-même à un client ?</summary><p>Oui. Le chatbot vous transmet les conversations délicates, et vous pouvez reprendre la main à tout moment depuis votre téléphone.</p></details>
+    <details><summary>Je peux garder mon numéro WhatsApp ?</summary><p>Oui. Votre numéro est alors transféré sur le chatbot et ne s'utilise plus dans l'application WhatsApp de votre téléphone. Pour continuer à utiliser votre WhatsApp habituel, prenez plutôt une carte SIM neuve pour le chatbot.</p></details>
+    <details><summary>Et si mon stock ou mes prix changent ?</summary><p>Envoyez-nous les changements : une mise à jour par mois est incluse. Un article en rupture n'est plus proposé aux clients.</p></details>
+    <details><summary>Combien de temps pour l'installation ?</summary><p>Comptez quelques jours après réception de votre catalogue et de vos photos, le temps de tout configurer et tester.</p></details>
+    <details><summary>Le chatbot vérifie-t-il les paiements ?</summary><p>Il demande la capture et vous l'envoie avec la commande. C'est vous qui vérifiez sur votre compte avant de confirmer : une capture peut être fausse.</p></details>
+  </section>
+
+  <section class="final">
+    <h2>Prêt à vendre même la nuit ?</h2>
+    <p class="muted">Écrivez-nous sur WhatsApp, nous vous répondons rapidement.</p>
+    <div class="phones"><span class="num">+225 07 10 41 16 27</span><span class="num">+33 6 50 36 24 40</span></div>
+    <a class="btn btn-main" href="https://wa.me/2250710411627?text=Bonjour%2C%20je%20souhaite%20un%20chatbot%20WhatsApp%20pour%20mon%20commerce." target="_blank" rel="noopener">Demander mon chatbot</a>
+  </section>
+
+  <footer>
+    <span>Chez Ella Services · Chatbot WhatsApp pour commerçants</span>
+    <span>Prix en francs CFA · Offre de lancement valable pour les 10 premiers commerçants</span>
+  </footer>
+</div>
+</body>
+</html>
